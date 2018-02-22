@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "AvlTree.h"
+#include "avltree.h"
  
 //
 // Private datatypes

@@ -3,21 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fcntl.h>
 #include <mqueue.h>
 #include <pthread.h>
 #include <stdio.h>
+#include "request.h"
 
 #define TRUE 1
 #define FALSE 0
 #define MAXSIZE 256
-
-struct request {
-    char q_name[MAXSIZE];
-    int id_method;
-    int key;
-    char* value1;
-    float value2;
-};
 
 void process_message(struct request *msg);
 
@@ -53,7 +47,7 @@ int comp(void *a1, void *a2) {
 void print(void *a) {
     NodeData nd = (NodeData) a;
 
-    printf("key: %d value1: %c value2: %f\n", nd->key, nd->value1, nd->value2);
+    printf("key: %d value1: %s value2: %f\n", nd->key, nd->value1, nd->value2);
 }
 
 int init() {
@@ -140,7 +134,7 @@ int main(int argc, char* argv[]) {
     q_attr.mq_maxmsg = 20;
     q_attr.mq_msgsize = sizeof(struct request);
 
-    q_server = mq_open("SERVER", O_CREAT|O_RDONLY, 0700, &q_attr);
+    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0700, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return 1;
@@ -160,8 +154,6 @@ int main(int argc, char* argv[]) {
 
         pthread_create(&thr, &t_attr, (void*)process_message, &msg);
 
-        thr++;
-
         /* wait for thread to copy message */
         pthread_mutex_lock(&mutex_msg);
         while (msg_not_copied) {
@@ -169,6 +161,25 @@ int main(int argc, char* argv[]) {
         }
         msg_not_copied = TRUE;
         pthread_mutex_unlock(&mutex_msg);
+    }
+}
+
+int getResult(int id_method, int key, char* value1, float* value2) {
+    switch(id_method) {
+        case 0:
+            return init(); 
+        case 1:
+            return set_value(key, value1, *value2);
+        case 2:
+            return get_value(key, value1, value2);
+        case 3:
+            return modify_value(key, value1, value2);
+        case 4:
+            return delete_key(key);
+        case 5:
+            return num_items();
+        default:
+            return -1;
     }
 }
 
@@ -188,17 +199,17 @@ void process_message(struct request *msg) {
     pthread_mutex_unlock(&mutex_msg);
 
     /* execute client request and prepare reply */
-    result = msg_local.a + msg_local.b;
+    /* result = msg_local.a + msg_local.b; */
 
     /* return result to client by sending it to queue */
-    q_client = mq_open(msg_local.name, O_WRONLY);
+    q_client = mq_open(msg_local.q_name, O_WRONLY);
 
-    getResult(msg_local.id_method, msg_local.key, msg_local.value1, msg_local.value2);
+    int result = getResult(msg_local.id_method, msg_local.key, msg_local.value1, msg_local.value2);
 
     if (q_client == -1)
         perror("Can't open client queue");
     else {
-        mq_send(q_client, (char *) &result, sizeof(int), 0);
+        mq_send(q_client, (char*) &result, sizeof(int), 0);
         mq_close(q_client);
     }
     pthread_exit(0);
