@@ -2,7 +2,7 @@
 #include <mqueue.h>
 #include <string.h>
 
-int start(int id_method, int key, char *value1, float *value2);
+int start(int id_method, int key, char *value1, float value2, struct request *dest_ptr);
 
 int init();
 

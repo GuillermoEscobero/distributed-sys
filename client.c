@@ -2,14 +2,21 @@
 #include "keys.h"
 
 int main(void) {
-    char * res1 = NULL;
+    char * res1 = "keloke";
+
     float res2 = 0.0;
 
+    printf("Executing init()..."); 
     init();
+    printf("Done\n");
 
-    set_value(3, "testid3", 3.33);
+    printf("Executing set_value()..."); 
+    set_value(3, "testid3\0", 3.33);
+    printf("Done\n");
 
+    printf("Executing get_value()..."); 
     get_value(3, res1, &res2);
+    printf("Done\n");
 
     printf("%s\n", res1);
     printf("%f\n", res2);

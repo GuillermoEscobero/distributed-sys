@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include "avltree.h"
 #include <stdlib.h>
 #include <string.h>
-
+#include <errno.h>
 #include <fcntl.h>
 #include <mqueue.h>
 #include <pthread.h>
 #include <stdio.h>
 #include "request.h"
+#include "dlist.c"
 
 #define TRUE 1
 #define FALSE 0
@@ -19,110 +19,35 @@ pthread_mutex_t mutex_msg;
 int msg_not_copied = TRUE;
 pthread_cond_t cond_msg;
 
-/* Declaration of data structure */
-Tree tree;
 
-/* Number of triples in the data structure */
-int counter;
-
-typedef struct NodeData {
-    int key;
-    char value1[256];
-    float value2;
-} *NodeData;
-
-int comp(void *a1, void *a2) {
-    NodeData nd1 = (NodeData) a1;
-    NodeData nd2 = (NodeData) a2;
-
-    if(nd1->key < nd2->key) {
-        return -1;
-    } else if(nd1->key > nd2->key) {
-        return +1;
-    } else {
-        return 0;
-    }
-}
-
-void print(void *a) {
-    NodeData nd = (NodeData) a;
-
-    printf("key: %d value1: %s value2: %f\n", nd->key, nd->value1, nd->value2);
-}
+/* Head of the data structure */
+Node* head;
 
 int init() {
-    tree = Tree_New(comp, print);
-    if(tree == NULL)
-        return -1;
-
+    head = NULL;
     return 0;
-
 }
 
 int set_value(int key, char *value1, float value2) {
-    Node node;
-    NodeData nd1 = (NodeData)malloc(sizeof(NodeData));
-    nd1 -> key = key;
-    strcpy(nd1->value1, value1);
-    /* nd1 -> value1 = value1; */
-    nd1 -> value2 = value2;
-
-    if((node = Tree_SearchNode(tree, nd1)) == NULL) {
-        Tree_Insert(tree, nd1);
-        counter++;
-        return 0;
-    }
-
-    return -1;
+    Node* newNode = getNewNode(key, value1, value2);
+    return insert(newNode, head);
 }
 
-int get_value(int key, char *value1, float *value2) {
-    Node node;
-    NodeData nd1 = (NodeData)malloc(sizeof(NodeData));
-    nd1 -> key = key;
-
-    if((node = Tree_SearchNode(tree, nd1)) != NULL) {
-        nd1 = Node_GetData(node);
-        value1 = (nd1->value1);
-        value2 = &(nd1->value2);
-        return 0;
-    } else {
-        return -1;
-    }
+Node* get_value(int key) {
+    return search(key, head);
 }
 
-int modify_value(int key, char *value1, float *value2) {
-    Node node;
-    NodeData nd1 = (NodeData)malloc(sizeof(NodeData));
-    nd1 -> key = key;
-
-    if((node = Tree_SearchNode(tree, nd1)) != NULL) {
-        nd1 = Node_GetData(node);
-        strcpy(nd1->value1, value1);
-        //nd1->value1 = value1;
-        nd1->value2 = *value2;
-        return 0;
-    } else {
-        return -1;
-    }
+int modify_value(int key, char *value1, float value2) {
+    Node* newNode = getNewNode(key, value1, value2);
+    return modify(newNode, head);
 }
 
 int delete_key(int key) {
-    Node node;
-    NodeData nd1 = (NodeData)malloc(sizeof(NodeData));
-    nd1->key = key;
-
-    if((node = Tree_SearchNode(tree, nd1)) != NULL) {
-        Tree_DeleteNode(tree, node);
-        counter--;
-        return 0;
-    }
-
-    return -1;
+    return delete(key, head);
 }
 
 int num_items() {
-    return counter;
+    return getCardinality(head);
 }
 
 int main(int argc, char* argv[]) {
@@ -131,13 +56,13 @@ int main(int argc, char* argv[]) {
     struct mq_attr q_attr;  /* queue attributes */
     pthread_attr_t t_attr;  /* thread attributes */
 
-    q_attr.mq_maxmsg = 20;
+    q_attr.mq_maxmsg = 100;
     q_attr.mq_msgsize = sizeof(struct request);
 
-    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0700, &q_attr);
+    q_server = mq_open("/test", O_CREAT|O_RDWR, 0700, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
-        return 1;
+        return -1;
     }
 
     pthread_mutex_init(&mutex_msg, NULL);
@@ -150,7 +75,8 @@ int main(int argc, char* argv[]) {
     pthread_t thr;
 
     while(TRUE) {
-        mq_receive(q_server,(char*) &msg, sizeof(struct request), 0);
+        mq_receive(q_server, (char*) &msg, sizeof(struct request), 0);
+        perror("mqreceive error");
 
         pthread_create(&thr, &t_attr, (void*)process_message, &msg);
 
@@ -164,20 +90,27 @@ int main(int argc, char* argv[]) {
     }
 }
 
-int getResult(int id_method, int key, char* value1, float* value2) {
-    switch(id_method) {
+int getResponse(struct request* localreq) {
+    switch(localreq->id_method) {
         case 0:
             return init(); 
         case 1:
-            return set_value(key, value1, *value2);
+            return set_value(localreq->key, localreq->value1, localreq->value2);
         case 2:
-            return get_value(key, value1, value2);
+            ;
+            Node* temp = get_value(localreq->key);
+            if(temp == NULL) {
+                return -1;
+            }
+            memcpy(localreq->value1, temp->value1, MAXSIZE);
+            localreq->value2 = temp->value2;
+            return 0;
         case 3:
-            return modify_value(key, value1, value2);
+            return modify_value(localreq->key, localreq->value1, localreq->value2);
         case 4:
-            return delete_key(key);
+            return delete_key(localreq->key);
         case 5:
-            return num_items();
+            return getCardinality(head);
         default:
             return -1;
     }
@@ -189,7 +122,7 @@ void process_message(struct request *msg) {
 
     /* thread copies message to local message */
     pthread_mutex_lock(&mutex_msg);
-    memcpy((char *) &msg_local, (char *) &msg, sizeof(struct request));
+    memcpy((char *) &msg_local, (char *) msg, sizeof(struct request));
 
     /* wake up server */
     msg_not_copied = FALSE;
@@ -199,18 +132,26 @@ void process_message(struct request *msg) {
     pthread_mutex_unlock(&mutex_msg);
 
     /* execute client request and prepare reply */
-    /* result = msg_local.a + msg_local.b; */
+
+    printf("Received request from: %s\n", (char*)msg_local.q_name);
 
     /* return result to client by sending it to queue */
     q_client = mq_open(msg_local.q_name, O_WRONLY);
 
-    int result = getResult(msg_local.id_method, msg_local.key, msg_local.value1, msg_local.value2);
+    int result = getResponse(&msg_local);
+
+    msg_local.id_method = result;
+
+    printf("Code from server: %d", msg_local.id_method);
 
     if (q_client == -1)
         perror("Can't open client queue");
     else {
-        mq_send(q_client, (char*) &result, sizeof(int), 0);
+        mq_send(q_client, (char*) &msg_local, sizeof(struct request), 0);
+        printf("Msg sent");
+
         mq_close(q_client);
+        printf("Queue closed");
     }
     pthread_exit(0);
 }

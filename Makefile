@@ -1,8 +1,8 @@
 all:
-	gcc -Wall -pthread -lrt -o server server.c avltree.c
-	gcc -Wall -lrt -c keys.c
+	gcc -g -Wall -pthread -o server server.c -lrt
+	gcc -g -Wall -c keys.c -lrt
 	ar -rv libkeys.a keys.o
-	gcc -Wall -lrt -o client client.c libkeys.a
+	gcc -g -Wall -o client client.c libkeys.a -lrt
 
 clean:
 	rm -f server client keys.o libkeys.a
