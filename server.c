@@ -56,10 +56,10 @@ int main(int argc, char* argv[]) {
     struct mq_attr q_attr;  /* queue attributes */
     pthread_attr_t t_attr;  /* thread attributes */
 
-    q_attr.mq_maxmsg = 100;
+    q_attr.mq_maxmsg = 20;
     q_attr.mq_msgsize = sizeof(struct request);
 
-    q_server = mq_open("/test", O_CREAT|O_RDWR, 0700, &q_attr);
+    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0700, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return -1;
@@ -122,7 +122,7 @@ void process_message(struct request *msg) {
 
     /* thread copies message to local message */
     pthread_mutex_lock(&mutex_msg);
-    memcpy((char *) &msg_local, (char *) msg, sizeof(struct request));
+    memcpy(&msg_local, msg, sizeof(struct request));
 
     /* wake up server */
     msg_not_copied = FALSE;
@@ -142,12 +142,12 @@ void process_message(struct request *msg) {
 
     msg_local.id_method = result;
 
-    printf("Code from server: %d", msg_local.id_method);
+    printf("Code from server: %d, %d", result, msg_local.id_method);
 
     if (q_client == -1)
         perror("Can't open client queue");
     else {
-        mq_send(q_client, (char*) &msg_local, sizeof(struct request), 0);
+        mq_send(q_client, (const char*) &msg_local, sizeof(struct request), 0);
         printf("Msg sent");
 
         mq_close(q_client);

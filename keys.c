@@ -11,9 +11,9 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
     attr.mq_maxmsg = 1;
     attr.mq_msgsize = sizeof(struct request);
     
-    q_client = mq_open("/CLIENT_ONE", O_CREAT|O_RDONLY, 0700, &attr);
+    q_client = mq_open("/CLIENT_ONE", O_CREAT|O_RDWR, 0660, &attr);
 
-    q_server = mq_open("/test", O_WRONLY);
+    q_server = mq_open("/SERVER", O_WRONLY);
 
     strcpy(req.q_name, "/CLIENT_ONE");
     req.id_method = id_method;
@@ -27,7 +27,7 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
     printf("%s\n", req.value1);
     printf("%f\n", req.value2);
     
-    mq_send(q_server, (char*) &req, sizeof(struct request), 0);
+    mq_send(q_server, (const char*) &req, sizeof(struct request), 0);
     mq_receive(q_client, (char*) dest_ptr, sizeof(struct request), 0);
 
     mq_close(q_server);
