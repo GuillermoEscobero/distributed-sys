@@ -5,6 +5,7 @@
 
 #define MAX_SIZE 256
 
+/* Definition of a node of the data structure */
 typedef struct Node  {
     int key;
     char value1[MAX_SIZE];
@@ -13,10 +14,13 @@ typedef struct Node  {
     struct Node* prev;
 } Node;
 
+/* Head of the Doubly Linked List*/
 Node* head;
 
+/* Method to create a new node */
 Node* getNewNode(int key, char *value1, float value2) {
     Node* newNode = (Node*)malloc(sizeof(Node));
+
     newNode->key = key;
     strcpy(newNode->value1, value1);
     newNode->value2 = value2;
@@ -26,46 +30,42 @@ Node* getNewNode(int key, char *value1, float value2) {
     return newNode;
 }
 
-
+/* Method to print in stdout the current nodes and their values (debugging) */
 void printList() {
 	Node* temp = head;
+  int counter = 0;
 	while(temp != NULL) {
-		printf("NODE IN DB: %d, %s, %f\n", temp->key, temp->value1, temp->value2);
+		printf("NODE %d: %d, %s, %f\n", counter, temp->key, temp->value1, temp->value2);
 		temp = temp->next;
 	}
 }
 
+/* Method to insert a new node in the list. This node will be added at the end */
 int insert(Node* newNode) {
     Node* temp = head;
 
     if(head == NULL) {
-        printf("Head inserted _:_:_::_:__::_");
         head = (Node*)malloc(sizeof(Node));
         head = newNode;
-        printList(head);
         return 0;
     }
 
     while(temp->next != NULL) {
         if(temp->key == newNode->key) {
-		        printf("KEYALREADYEXISTS");
+            /* Key already exists */
+            printList();
             return -1;
         }
-        printf("*=*=*=*=*=*=*=*=*=*=*=\n");
         temp = temp->next;
     }
 
     temp->next = newNode;
     newNode->prev = temp;
-    printf("CURRENT NODES IN LIST ----------------\n");
-    printf("CURRENT NODES IN LIST ----------------\n");
-    printf("CURRENT NODES IN LIST ----------------\n");
-    printf("CURRENT NODES IN LIST ----------------\n");
-	  printList(head);
 
     return 0;
 }
 
+/* Deletes the node with the provided key */
 int delete(int key) {
     Node* temp = head;
 
@@ -85,12 +85,13 @@ int delete(int key) {
 
             return 0;
         }
-	temp = temp->next;
+        temp = temp->next;
     }
 
     return -1;
 }
 
+/* Returns the node with the provided key associated */
 Node* search(int key) {
     Node* temp = head;
 
@@ -102,7 +103,7 @@ Node* search(int key) {
         if(temp->key == key) {
             return temp;
         }
-	temp = temp->next;
+	      temp = temp->next;
     }
 
     return NULL;
@@ -120,7 +121,7 @@ int modify(Node* newNode) {
             temp = newNode;
             return 0;
         }
-	temp = temp->next;
+	      temp = temp->next;
     }
 
     return -1;
@@ -136,7 +137,7 @@ int getCardinality() {
     }
 
     while(temp != NULL) {
-        count++;
+      count++;
     	temp = temp->next;
     }
 
