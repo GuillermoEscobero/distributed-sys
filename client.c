@@ -16,7 +16,7 @@ int main(void) {
     set_value(3, "testid3\0", 3.33);
     printf("Done\n");
     set_value(3, "SSSSSS3\0", 321.33);
-
+/*
     printf("Executing get_value()...\n"); 
     int result = get_value(3, res1, &res2);
     printf("Done, finish code: %d\n", result);
@@ -39,4 +39,5 @@ int main(void) {
     delete_key(3);
 
     printf("Items: %d\n", num_items());
+    */
 }

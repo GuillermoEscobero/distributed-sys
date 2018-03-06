@@ -13,6 +13,8 @@ typedef struct Node  {
     struct Node* prev;
 } Node;
 
+Node* head;
+
 Node* getNewNode(int key, char *value1, float value2) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->key = key;
@@ -25,7 +27,7 @@ Node* getNewNode(int key, char *value1, float value2) {
 }
 
 
-void printList(Node* head) {
+void printList() {
 	Node* temp = head;
 	while(temp != NULL) {
 		printf("NODE IN DB: %d, %s, %f\n", temp->key, temp->value1, temp->value2);
@@ -33,11 +35,14 @@ void printList(Node* head) {
 	}
 }
 
-int insert(Node* newNode, Node* head) {
+int insert(Node* newNode) {
     Node* temp = head;
 
     if(head == NULL) {
+        printf("Head inserted _:_:_::_:__::_");
+        head = (Node*)malloc(sizeof(Node));
         head = newNode;
+        printList(head);
         return 0;
     }
 
@@ -61,7 +66,7 @@ int insert(Node* newNode, Node* head) {
     return 0;
 }
 
-int delete(int key, Node* head) {
+int delete(int key) {
     Node* temp = head;
 
     if(head == NULL) {
@@ -86,7 +91,7 @@ int delete(int key, Node* head) {
     return -1;
 }
 
-Node* search(int key, Node* head) {
+Node* search(int key) {
     Node* temp = head;
 
     if(head == NULL) {
@@ -103,7 +108,7 @@ Node* search(int key, Node* head) {
     return NULL;
 }
 
-int modify(Node* newNode, Node* head) {
+int modify(Node* newNode) {
     Node* temp = head;
 
     if(head == NULL) {
@@ -121,7 +126,7 @@ int modify(Node* newNode, Node* head) {
     return -1;
 }
 
-int getCardinality(Node* head) {
+int getCardinality() {
     Node* temp = head;
 
     int count = 0;
@@ -132,7 +137,7 @@ int getCardinality(Node* head) {
 
     while(temp != NULL) {
         count++;
-	temp = temp->next;
+    	temp = temp->next;
     }
 
     return count;

@@ -21,7 +21,7 @@ pthread_cond_t cond_msg;
 
 
 /* Head of the data structure */
-Node* head;
+Node* head = NULL;
 
 int init() {
     head = NULL;
@@ -30,20 +30,22 @@ int init() {
 
 int set_value(int key, char *value1, float value2) {
     Node* newNode = getNewNode(key, value1, value2);
-    return insert(newNode, head);
+    int result = insert(newNode);
+    printf("CODE FROM INSERT_:_:_:_:_:_:_:_%d", result);
+    return result;
 }
 
 Node* get_value(int key) {
-    return search(key, head);
+    return search(key);
 }
 
 int modify_value(int key, char *value1, float value2) {
     Node* newNode = getNewNode(key, value1, value2);
-    return modify(newNode, head);
+    return modify(newNode);
 }
 
 int delete_key(int key) {
-    return delete(key, head);
+    return delete(key);
 }
 
 int num_items() {
@@ -119,6 +121,8 @@ int getResponse(struct request* localreq) {
 }
 
 void process_message(struct request *msg) {
+    if(head != NULL)
+    printf("CURRENT KEY OF HEAD:::: %d\n\n", head->key);
     struct request msg_local;   /* local message */
     mqd_t q_client;      /* client queue */
 
