@@ -22,12 +22,13 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
     strcpy(req.value1, value1);
     req.value2 = value2;
 
-    printf("%d\n", req.id_method);
-    printf("%d\n", req.key);
-    printf("%s\n", req.value1);
-    printf("%f\n", req.value2);
+    printf("id_method sent %d\n", req.id_method);
+    printf("key %d\n", req.key);
+    printf("value1 %s\n", req.value1);
+    printf("value2 sent %f\n", req.value2);
     
-    mq_send(q_server, (const char*) &req, sizeof(struct request), 0);
+    mq_send(q_server, (char*) &req, sizeof(struct request), 0);
+    printf("Msg sent.");
     mq_receive(q_client, (char*) dest_ptr, sizeof(struct request), 0);
 
     mq_close(q_server);
@@ -39,7 +40,6 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
 
 int init() {
     struct request msg_local;
-    printf("kkk");
     return start(0, 0, "", 0, &msg_local);
 }
 
@@ -52,7 +52,7 @@ int get_value(int key, char *value1, float *value2) {
     struct request msg_local;
     
     if(start(2, key, value1, *value2, &msg_local) == 0) {
-        strcpy(value1, msg_local.value1);
+        memcpy(value1, msg_local.value1, MAXSIZE);
         *value2 = msg_local.value2;
         return 0;
     }

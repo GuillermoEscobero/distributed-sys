@@ -56,10 +56,10 @@ int main(int argc, char* argv[]) {
     struct mq_attr q_attr;  /* queue attributes */
     pthread_attr_t t_attr;  /* thread attributes */
 
-    q_attr.mq_maxmsg = 20;
+    q_attr.mq_maxmsg = 10;
     q_attr.mq_msgsize = sizeof(struct request);
 
-    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0700, &q_attr);
+    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0666, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return -1;
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
 
     while(TRUE) {
         mq_receive(q_server, (char*) &msg, sizeof(struct request), 0);
-        perror("mqreceive error");
+        perror("mqreceive info");
 
         pthread_create(&thr, &t_attr, (void*)process_message, &msg);
 
@@ -102,7 +102,7 @@ int getResponse(struct request* localreq) {
             if(temp == NULL) {
                 return -1;
             }
-            memcpy(localreq->value1, temp->value1, MAXSIZE);
+            strcpy(localreq->value1, temp->value1);
             localreq->value2 = temp->value2;
             return 0;
         case 3:
@@ -134,6 +134,11 @@ void process_message(struct request *msg) {
     /* execute client request and prepare reply */
 
     printf("Received request from: %s\n", (char*)msg_local.q_name);
+    printf("MESSAGE RECEIVED\n");
+    printf("id_method: %d\n", msg_local.id_method);
+    printf("key: %d\n", msg_local.key);
+    printf("value1: %s\n", msg_local.value1);
+    printf("value2: %f\n", msg_local.value2);
 
     /* return result to client by sending it to queue */
     q_client = mq_open(msg_local.q_name, O_WRONLY);
@@ -142,16 +147,23 @@ void process_message(struct request *msg) {
 
     msg_local.id_method = result;
 
-    printf("Code from server: %d, %d", result, msg_local.id_method);
+    printf("Code from server: %d, %d\n", result, msg_local.id_method);
+
+    printf("MESSAGE SENT\n");
+    printf("id_method: %d\n", msg_local.id_method);
+    printf("key: %d\n", msg_local.key);
+    printf("value1: %s\n", msg_local.value1);
+    printf("value2: %f\n", msg_local.value2);
 
     if (q_client == -1)
         perror("Can't open client queue");
     else {
         mq_send(q_client, (const char*) &msg_local, sizeof(struct request), 0);
-        printf("Msg sent");
+        printf("Msg sent\n");
 
         mq_close(q_client);
-        printf("Queue closed");
+        printf("Queue closed\n");
+        printf("********************\n");
     }
     pthread_exit(0);
 }
