@@ -43,19 +43,20 @@ int insert(Node* newNode, Node* head) {
 
     while(temp->next != NULL) {
         if(temp->key == newNode->key) {
-		printf("KEYALREADYEXISTS");
+		        printf("KEYALREADYEXISTS");
             return -1;
         }
+        printf("*=*=*=*=*=*=*=*=*=*=*=\n");
         temp = temp->next;
     }
 
     temp->next = newNode;
     newNode->prev = temp;
-printf("CURRENT NODES IN LIST ----------------\n");
-printf("CURRENT NODES IN LIST ----------------\n");
-printf("CURRENT NODES IN LIST ----------------\n");
-printf("CURRENT NODES IN LIST ----------------\n");
-	printList(head);
+    printf("CURRENT NODES IN LIST ----------------\n");
+    printf("CURRENT NODES IN LIST ----------------\n");
+    printf("CURRENT NODES IN LIST ----------------\n");
+    printf("CURRENT NODES IN LIST ----------------\n");
+	  printList(head);
 
     return 0;
 }
@@ -136,4 +137,3 @@ int getCardinality(Node* head) {
 
     return count;
 }
-

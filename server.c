@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 
     /* thread attributes */
     pthread_attr_setdetachstate(&t_attr, PTHREAD_CREATE_DETACHED);
-    
+
     pthread_t thr;
 
     while(TRUE) {
@@ -93,14 +93,14 @@ int main(int argc, char* argv[]) {
 int getResponse(struct request* localreq) {
     switch(localreq->id_method) {
         case 0:
-            return init(); 
+            return init();
         case 1:
             return set_value(localreq->key, localreq->value1, localreq->value2);
         case 2:
             ;
             Node* temp = get_value(localreq->key);
             if(temp == NULL) {
-		printf("ERROR-------------------%d\n", localreq->key);
+		            printf("ERROR-------------------%d\n", localreq->key);
                 return -1;
             }
             strcpy(localreq->value1, temp->value1);
