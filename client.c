@@ -2,7 +2,9 @@
 #include "keys.h"
 
 int main(void) {
-    char * res1 = "keloke\0";
+    char res1[MAXSIZE];
+
+	strcpy(res1, "keloke\0");
 
     float res2 = 0.0;
 
@@ -13,15 +15,16 @@ int main(void) {
     printf("Executing set_value()...\n"); 
     set_value(3, "testid3\0", 3.33);
     printf("Done\n");
+    set_value(3, "SSSSSS3\0", 321.33);
 
     printf("Executing get_value()...\n"); 
-    get_value(3, res1, &res2);
-    printf("Done\n");
+    int result = get_value(3, res1, &res2);
+    printf("Done, finish code: %d\n", result);
 
-    printf("RECEIVED v1? %s\n", res1);
-    printf("RECEIVED v2? %f\n", res2);
+    printf("\n\nRECEIVED v1? %s\n", res1);
+    printf("RECEIVED v2? %f\n\n", res2);
 
-    res1 = "modifiedid3";
+    strcpy(res1,"modifiedid3\0");
     res2 = 4.44;
 
     modify_value(3, res1, &res2);

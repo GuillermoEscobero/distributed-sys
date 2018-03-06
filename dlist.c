@@ -13,10 +13,8 @@ typedef struct Node  {
     struct Node* prev;
 } Node;
 
-Node* head; // global variable - pointer to head node.
-
 Node* getNewNode(int key, char *value1, float value2) {
-    Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->key = key;
     strcpy(newNode->value1, value1);
     newNode->value2 = value2;
@@ -24,6 +22,15 @@ Node* getNewNode(int key, char *value1, float value2) {
     newNode->next = NULL;
 
     return newNode;
+}
+
+
+void printList(Node* head) {
+	Node* temp = head;
+	while(temp != NULL) {
+		printf("NODE IN DB: %d, %s, %f\n", temp->key, temp->value1, temp->value2);
+		temp = temp->next;
+	}
 }
 
 int insert(Node* newNode, Node* head) {
@@ -36,6 +43,7 @@ int insert(Node* newNode, Node* head) {
 
     while(temp->next != NULL) {
         if(temp->key == newNode->key) {
+		printf("KEYALREADYEXISTS");
             return -1;
         }
         temp = temp->next;
@@ -43,6 +51,11 @@ int insert(Node* newNode, Node* head) {
 
     temp->next = newNode;
     newNode->prev = temp;
+printf("CURRENT NODES IN LIST ----------------\n");
+printf("CURRENT NODES IN LIST ----------------\n");
+printf("CURRENT NODES IN LIST ----------------\n");
+printf("CURRENT NODES IN LIST ----------------\n");
+	printList(head);
 
     return 0;
 }
@@ -66,6 +79,7 @@ int delete(int key, Node* head) {
 
             return 0;
         }
+	temp = temp->next;
     }
 
     return -1;
@@ -78,10 +92,11 @@ Node* search(int key, Node* head) {
         return NULL;
     }
 
-    while(temp->next != NULL) {
+    while(temp != NULL) {
         if(temp->key == key) {
             return temp;
         }
+	temp = temp->next;
     }
 
     return NULL;
@@ -94,11 +109,12 @@ int modify(Node* newNode, Node* head) {
         return -1;
     }
 
-    while(temp->next != NULL) {
+    while(temp != NULL) {
         if(temp->key == newNode->key) {
             temp = newNode;
             return 0;
         }
+	temp = temp->next;
     }
 
     return -1;
@@ -113,9 +129,11 @@ int getCardinality(Node* head) {
         return 0;
     }
 
-    while(temp->next != NULL) {
+    while(temp != NULL) {
         count++;
+	temp = temp->next;
     }
 
     return count;
 }
+

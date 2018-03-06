@@ -100,6 +100,7 @@ int getResponse(struct request* localreq) {
             ;
             Node* temp = get_value(localreq->key);
             if(temp == NULL) {
+		printf("ERROR-------------------%d\n", localreq->key);
                 return -1;
             }
             strcpy(localreq->value1, temp->value1);
@@ -112,6 +113,7 @@ int getResponse(struct request* localreq) {
         case 5:
             return getCardinality(head);
         default:
+		printf("NO METHOD RECOGNIZED");
             return -1;
     }
 }
