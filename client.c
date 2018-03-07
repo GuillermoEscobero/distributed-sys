@@ -1,3 +1,10 @@
+/****************************************************************************
+ * client.c
+ *    Example of use of library libkeys. This contains several tests to
+ *    check the functionalities required.
+ * Author: Guillermo Escobero
+ ****************************************************************************/
+
 #include <stdio.h>
 #include "keys.h"
 
@@ -31,6 +38,8 @@ int main(void) {
 
     printf("\n********** TEST6: check test 5 ************\n");
     printf("Code expected: 0, got: %d\n", get_value(3, res1, &res2));
+    strcpy(res1, "clean\0");
+    res2 = 0.00;
     printf("Expected: modifiedid3 (value1) from server: %s\n", res1);
     printf("Expected: 4.44 (value2) from server: %f\n", res2);
 
@@ -44,7 +53,7 @@ int main(void) {
     printf("Code expected: 0, got: %d\n", get_value(56, res1, &res2));
     printf("Expected: testid3 (value1) from server: %s\n", res1);
     printf("Expected: 3.33 (value2) from server: %f\n", res2);
-    
+
     printf("\n********** TEST7: DELETE_KEY ************\n");
     printf("Code expected: 0, got: %d\n", delete_key(3));
     printf("Try to delete again: Code expected: -1, got: %d\n", delete_key(3));

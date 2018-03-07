@@ -1,14 +1,21 @@
-/* Doubly Linked List implementation */
+/****************************************************************************
+ * dlist.c
+ *    Implementation of a Doubly Linked List. This contains the basic methods
+ *    of insertion, deletion and search, with some modifications to fit the
+ *    assignment.
+ * Author: Guillermo Escobero
+ ****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_SIZE 256
+#define MAXSIZE 256
 
 /* Definition of a node of the data structure */
 typedef struct Node  {
     int key;
-    char value1[MAX_SIZE];
+    char value1[MAXSIZE];
     float value2;
     struct Node* next;
     struct Node* prev;
@@ -17,7 +24,8 @@ typedef struct Node  {
 /* Head of the Doubly Linked List*/
 Node* head;
 
-int init() {
+/* Deletes all the list and frees the memory */
+int freeList() {
     if(head == NULL) return 0;
 
     Node* node = head;
@@ -53,7 +61,7 @@ void printList() {
 	while(temp != NULL) {
 		printf("NODE %d: %d, %s, %f\n", counter, temp->key, temp->value1, temp->value2);
 		temp = temp->next;
-        counter++;
+    counter++;
 	}
 }
 
@@ -63,14 +71,11 @@ int insert(Node* newNode) {
 
     if(head == NULL) {
         head = newNode;
-        printf("INSERTED IN HEAD\n");
         return 0;
     }
 
     while(temp != NULL) {
-        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
         if(temp->key == newNode->key) {
-            printf("COJONEEEEEEEEEEESSSSS\neeeeeeeeeee\n\n\n");
             /* Key already exists */
             printList();
             return -1;
@@ -93,7 +98,6 @@ int delete(int key) {
     Node* temp = head;
 
     if(head == NULL) {
-        printf("fail head\n");
         return -1;
     }
 
@@ -112,13 +116,10 @@ int delete(int key) {
             next->prev = temp->prev;
 
             free(temp);
-            printf("delete: SUCCESS\n");
             return 0;
         }
         temp = temp->next;
     }
-
-    printf("REVENTARA AQUI SUPONGO\n");
 
     return -1;
 }
@@ -141,42 +142,46 @@ Node* search(int key) {
     return NULL;
 }
 
+
 int modify(Node* newNode) {
-    /* Node* temp = head; */
-printf("MODIFING NODE WITH KEY: %d\n", newNode->key);
-    if(head == NULL) {
-        return -1;
-    }
-    /*
-    while(temp != NULL) {
-        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
-        if(temp->key == newNode->key) {
-            temp = newNode;
-            return 0;
-        }
-	      temp = temp->next;
-    }
-
-    return -1;
-    */
-
-    if(delete(newNode->key) != 0) return -1;
-    if(insert(newNode) != 0) return -1;
-
-    return 0;
-}
-
-int getCardinality() {
     Node* temp = head;
 
+    if(head == NULL) {
+        /* Empty list */
+        return -1;
+    }
+
+    while(temp != NULL) {
+        if(temp->key == newNode->key) {
+            /* Key found */
+            strcpy(temp->value1, value1);
+            temp->value2 = value2;
+            printList();
+            return 0;
+        }
+
+        if(temp->next != NULL) {
+            temp = temp->next;
+        } else {
+            break;
+        }
+    }
+    /* Key not found */
+    return -1;
+}
+
+/* Returns the number of nodes currently stored in the list */
+int getCardinality() {
+    Node* temp = head;
     int count = 0;
 
     if(head == NULL) {
-        return 0;
+      /* Empty list */
+      return 0;
     }
 
     while(temp != NULL) {
-        count++;
+      count++;
     	temp = temp->next;
     }
 

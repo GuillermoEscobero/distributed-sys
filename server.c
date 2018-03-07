@@ -1,3 +1,9 @@
+/****************************************************************************
+ * server.c
+ *    Implementation of server main part of receiving and sending messages.
+ * Author: Guillermo Escobero
+ ****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,15 +11,15 @@
 #include <fcntl.h>
 #include <mqueue.h>
 #include <pthread.h>
-#include <stdio.h>
-#include "request.h"
+
+#include "message.h"
 #include "dlist.c"
 
 #define TRUE 1
 #define FALSE 0
 #define MAXSIZE 256
 
-void process_message(struct request *msg);
+void process_message(struct message *msg);
 
 pthread_mutex_t mutex_msg;
 int msg_not_copied = TRUE;
@@ -23,7 +29,6 @@ pthread_cond_t cond_msg;
 int set_value(int key, char *value1, float value2) {
     Node* newNode = getNewNode(key, value1, value2);
     int result = insert(newNode);
-    printf("CODE FROM INSERT_:_:_:_:_:_:_:_%d", result);
     return result;
 }
 
@@ -45,36 +50,40 @@ int num_items() {
 }
 
 int main(int argc, char* argv[]) {
-    mqd_t q_server;         /* server queue */
-    struct request msg;     /* message to receive */
-    struct mq_attr q_attr;  /* queue attributes */
-    pthread_attr_t t_attr;  /* thread attributes */
+    printf("Starting server...\n");
+    mqd_t q_server;         /* Server queue */
+    struct message msg;     /* Message to receive */
+    struct mq_attr q_attr;  /* Queue attributes */
+    pthread_attr_t t_attr;  /* Thread attributes */
 
     q_attr.mq_maxmsg = 10;
-    q_attr.mq_msgsize = sizeof(struct request);
+    q_attr.mq_msgsize = sizeof(struct message);
 
-    q_server = mq_open("/SERVERR", O_CREAT|O_RDONLY, 0666, &q_attr);
+    q_server = mq_open("/SERVER_01", O_CREAT|O_RDONLY, 0666, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return -1;
+    } else {
+        printf("Server up\n");
     }
 
     pthread_mutex_init(&mutex_msg, NULL);
     pthread_cond_init(&cond_msg, NULL);
     pthread_attr_init(&t_attr);
 
-    /* thread attributes */
+    /* Thread attributes */
     pthread_attr_setdetachstate(&t_attr, PTHREAD_CREATE_DETACHED);
 
     pthread_t thr;
 
     while(TRUE) {
-        mq_receive(q_server, (char*) &msg, sizeof(struct request), 0);
+        printf("\nWaiting for clients...\n");
+        mq_receive(q_server, (char*) &msg, sizeof(struct message), 0);
         perror("mqreceive info");
 
         pthread_create(&thr, &t_attr, (void*)process_message, &msg);
 
-        /* wait for thread to copy message */
+        /* Wait for thread to copy message */
         pthread_mutex_lock(&mutex_msg);
         while (msg_not_copied) {
             pthread_cond_wait(&cond_msg, &mutex_msg);
@@ -84,17 +93,16 @@ int main(int argc, char* argv[]) {
     }
 }
 
-int getResponse(struct request* localreq) {
+int getResponse(struct message* localreq) {
     switch(localreq->id_method) {
         case 0:
-            return init();
+            return freeList();
         case 1:
             return set_value(localreq->key, localreq->value1, localreq->value2);
         case 2:
             ;
             Node* temp = get_value(localreq->key);
             if(temp == NULL) {
-		            printf("ERROR-------------------%d\n", localreq->key);
                 return -1;
             }
             strcpy(localreq->value1, temp->value1);
@@ -107,21 +115,17 @@ int getResponse(struct request* localreq) {
         case 5:
             return getCardinality(head);
         default:
-		printf("NO METHOD RECOGNIZED");
             return -1;
     }
 }
 
-void process_message(struct request *msg) {
-    if(head != NULL)
-    printf("CURRENT KEY OF HEAD:::: %d\n\n", head->key);
-    printList();
-    struct request msg_local;   /* local message */
+void process_message(struct message *msg) {
+    struct message msg_local;   /* local message */
     mqd_t q_client;      /* client queue */
 
     /* thread copies message to local message */
     pthread_mutex_lock(&mutex_msg);
-    memcpy(&msg_local, msg, sizeof(struct request));
+    memcpy(&msg_local, msg, sizeof(struct message));
 
     /* wake up server */
     msg_not_copied = FALSE;
@@ -146,7 +150,7 @@ void process_message(struct request *msg) {
 
     msg_local.id_method = result;
 
-    printf("Code from server: %d, %d\n", result, msg_local.id_method);
+    printf("Code from server: %d, %d\n", result);
 
     printf("MESSAGE SENT\n");
     printf("id_method: %d\n", msg_local.id_method);
@@ -157,7 +161,7 @@ void process_message(struct request *msg) {
     if (q_client == -1)
         perror("Can't open client queue");
     else {
-        mq_send(q_client, (const char*) &msg_local, sizeof(struct request), 0);
+        mq_send(q_client, (const char*) &msg_local, sizeof(struct message), 0);
         printf("Msg sent\n");
 
         mq_close(q_client);
