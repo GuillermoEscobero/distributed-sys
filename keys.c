@@ -12,6 +12,8 @@
 #include "keys.h"
 #include "message.h"
 
+int start(int id_method, int key, char *value1, float value2, struct message *dest_ptr);
+
 int init() {
     /* Structure to save the server response */
     struct message msg_local;
@@ -72,7 +74,7 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
     mqd_t q_client;
 
     /* Request struct declaration */
-    struct message req;
+    struct message req = {{'0', -1, -1, '0', 0.0}};
 
     /* Attributes for client queue */
     struct mq_attr attr;
@@ -90,7 +92,7 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
     strcpy(req.q_name, "/CLIENT_ONE");
     req.id_method = id_method;
     req.key = key;
-    memset(req.value1, '/0', sizeof(req.value1));
+    memset(req.value1, '\0', sizeof(req.value1));
     strcpy(req.value1, value1);
     req.value2 = value2;
 
@@ -108,7 +110,7 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
 
     /* Receive the response message of the server, and save it on dest_ptr */
     printf("Waiting for response... ");
-    mq_receive(q_client, (char*) dest_ptr, sizeof(struct request), 0);
+    mq_receive(q_client, (char*) dest_ptr, sizeof(struct message), 0);
     printf("Received.\n");
 
     /* Close the queues */

@@ -150,7 +150,7 @@ void process_message(struct message *msg) {
 
     msg_local.id_method = result;
 
-    printf("Code from server: %d, %d\n", result);
+    printf("Code from server: %d\n", result);
 
     printf("MESSAGE SENT\n");
     printf("id_method: %d\n", msg_local.id_method);

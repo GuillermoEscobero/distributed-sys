@@ -8,6 +8,8 @@
 #ifndef KEYS_H_
 #define KEYS_H_
 
+#define MAXSIZE 256
+
 /* Deletes all the triplets stored on the server. The function returns 0 on
  * success and -1 on error. */
 int init();

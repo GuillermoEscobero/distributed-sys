@@ -6,6 +6,7 @@
  ****************************************************************************/
 
 #include <stdio.h>
+#include <string.h>
 #include "keys.h"
 
 int main(void) {
@@ -22,6 +23,8 @@ int main(void) {
     printf("\n********** TEST2: SET_VALUE ************\n");
     printf("Code expected: 0, got: %d\n", set_value(3, "testid3\0", 3.33));
     printf("Done\n");
+
+
     printf("********** TEST3: set key already used ************\n");
     printf("Code expected: -1, got: %d\n", set_value(3, "SSSSSS3\0", 321.33));
 
@@ -36,10 +39,12 @@ int main(void) {
     printf("\n********** TEST5: MODIFY_VALUE ************\n");
     printf("Code expected: 0, got: %d\n", modify_value(3, res1, &res2));
 
-    printf("\n********** TEST6: check test 5 ************\n");
-    printf("Code expected: 0, got: %d\n", get_value(3, res1, &res2));
     strcpy(res1, "clean\0");
     res2 = 0.00;
+    
+    printf("\n********** TEST6: check test 5 ************\n");
+    printf("Code expected: 0, got: %d\n", get_value(3, res1, &res2));
+    
     printf("Expected: modifiedid3 (value1) from server: %s\n", res1);
     printf("Expected: 4.44 (value2) from server: %f\n", res2);
 
@@ -51,8 +56,8 @@ int main(void) {
 
     printf("\n********** TEST4: GET_VALUE ************\n");
     printf("Code expected: 0, got: %d\n", get_value(56, res1, &res2));
-    printf("Expected: testid3 (value1) from server: %s\n", res1);
-    printf("Expected: 3.33 (value2) from server: %f\n", res2);
+    printf("Expected: testid56 (value1) from server: %s\n", res1);
+    printf("Expected: 57.75 (value2) from server: %f\n", res2);
 
     printf("\n********** TEST7: DELETE_KEY ************\n");
     printf("Code expected: 0, got: %d\n", delete_key(3));

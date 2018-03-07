@@ -154,8 +154,8 @@ int modify(Node* newNode) {
     while(temp != NULL) {
         if(temp->key == newNode->key) {
             /* Key found */
-            strcpy(temp->value1, value1);
-            temp->value2 = value2;
+            strcpy(temp->value1, newNode->value1);
+            temp->value2 = newNode->value2;
             printList();
             return 0;
         }
