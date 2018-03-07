@@ -58,7 +58,7 @@ void printList() {
 }
 
 /* Method to insert a new node in the list. This node will be added at the end */
-int insert(Node* newNode, int key) {
+int insert(Node* newNode) {
     Node* temp = head;
 
     if(head == NULL) {
@@ -69,7 +69,7 @@ int insert(Node* newNode, int key) {
 
     while(temp != NULL) {
         printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
-        if(temp->key == key) {
+        if(temp->key == newNode->key) {
             printf("COJONEEEEEEEEEEESSSSS\neeeeeeeeeee\n\n\n");
             /* Key already exists */
             printList();
@@ -93,10 +93,11 @@ int delete(int key) {
     Node* temp = head;
 
     if(head == NULL) {
+        printf("fail head\n");
         return -1;
     }
 
-    while(temp->next != NULL) {
+    while(temp != NULL) {
         if(temp->key == key) {
             if(temp == head) {
                 head = temp->next;
@@ -111,11 +112,13 @@ int delete(int key) {
             next->prev = temp->prev;
 
             free(temp);
-
+            printf("delete: SUCCESS\n");
             return 0;
         }
         temp = temp->next;
     }
+
+    printf("REVENTARA AQUI SUPONGO\n");
 
     return -1;
 }
@@ -129,7 +132,6 @@ Node* search(int key) {
     }
 
     while(temp != NULL) {
-        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, key);
         if(temp->key == key) {
             return temp;
         }
@@ -140,12 +142,12 @@ Node* search(int key) {
 }
 
 int modify(Node* newNode) {
-    Node* temp = head;
-
+    /* Node* temp = head; */
+printf("MODIFING NODE WITH KEY: %d\n", newNode->key);
     if(head == NULL) {
         return -1;
     }
-
+    /*
     while(temp != NULL) {
         printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
         if(temp->key == newNode->key) {
@@ -156,6 +158,12 @@ int modify(Node* newNode) {
     }
 
     return -1;
+    */
+
+    if(delete(newNode->key) != 0) return -1;
+    if(insert(newNode) != 0) return -1;
+
+    return 0;
 }
 
 int getCardinality() {

@@ -22,7 +22,7 @@ pthread_cond_t cond_msg;
 
 int set_value(int key, char *value1, float value2) {
     Node* newNode = getNewNode(key, value1, value2);
-    int result = insert(newNode, key);
+    int result = insert(newNode);
     printf("CODE FROM INSERT_:_:_:_:_:_:_:_%d", result);
     return result;
 }
