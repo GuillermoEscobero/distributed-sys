@@ -90,6 +90,7 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
     strcpy(req.q_name, "/CLIENT_ONE");
     req.id_method = id_method;
     req.key = key;
+    memset(req.value1, '/0', sizeof(req.value1));
     strcpy(req.value1, value1);
     req.value2 = value2;
 
