@@ -40,6 +40,11 @@ int main(void) {
 
     printf("Items expected: 3, sent by server: %d\n", num_items());
 
+    printf("\n********** TEST4: GET_VALUE ************\n");
+    printf("Code expected: 0, got: %d\n", get_value(56, res1, &res2));
+    printf("Expected: testid3 (value1) from server: %s\n", res1);
+    printf("Expected: 3.33 (value2) from server: %f\n", res2);
+    
     printf("\n********** TEST7: DELETE_KEY ************\n");
     printf("Code expected: 0, got: %d\n", delete_key(3));
     printf("Try to delete again: Code expected: -1, got: %d\n", delete_key(3));

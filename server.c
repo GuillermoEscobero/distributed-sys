@@ -20,17 +20,9 @@ int msg_not_copied = TRUE;
 pthread_cond_t cond_msg;
 
 
-/* Head of the data structure */
-Node* head = NULL;
-
-int init() {
-    head = NULL;
-    return 0;
-}
-
 int set_value(int key, char *value1, float value2) {
     Node* newNode = getNewNode(key, value1, value2);
-    int result = insert(newNode);
+    int result = insert(newNode, key);
     printf("CODE FROM INSERT_:_:_:_:_:_:_:_%d", result);
     return result;
 }
@@ -61,7 +53,7 @@ int main(int argc, char* argv[]) {
     q_attr.mq_maxmsg = 10;
     q_attr.mq_msgsize = sizeof(struct request);
 
-    q_server = mq_open("/SERVER", O_CREAT|O_RDONLY, 0666, &q_attr);
+    q_server = mq_open("/SERVERR", O_CREAT|O_RDONLY, 0666, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return -1;
@@ -123,6 +115,7 @@ int getResponse(struct request* localreq) {
 void process_message(struct request *msg) {
     if(head != NULL)
     printf("CURRENT KEY OF HEAD:::: %d\n\n", head->key);
+    printList();
     struct request msg_local;   /* local message */
     mqd_t q_client;      /* client queue */
 

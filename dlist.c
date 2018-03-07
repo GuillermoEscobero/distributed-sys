@@ -17,6 +17,22 @@ typedef struct Node  {
 /* Head of the Doubly Linked List*/
 Node* head;
 
+int init() {
+    if(head == NULL) return 0;
+
+    Node* node = head;
+    Node* temp;
+    while(node != NULL) {
+        temp = node;
+        node = node->next;
+        free(temp);
+    }
+
+    head = NULL;
+
+    return 0;
+}
+
 /* Method to create a new node */
 Node* getNewNode(int key, char *value1, float value2) {
     Node* newNode = (Node*)malloc(sizeof(Node));
@@ -37,31 +53,38 @@ void printList() {
 	while(temp != NULL) {
 		printf("NODE %d: %d, %s, %f\n", counter, temp->key, temp->value1, temp->value2);
 		temp = temp->next;
+        counter++;
 	}
 }
 
 /* Method to insert a new node in the list. This node will be added at the end */
-int insert(Node* newNode) {
+int insert(Node* newNode, int key) {
     Node* temp = head;
 
     if(head == NULL) {
-        head = (Node*)malloc(sizeof(Node));
         head = newNode;
+        printf("INSERTED IN HEAD\n");
         return 0;
     }
 
-    while(temp->next != NULL) {
-        if(temp->key == newNode->key) {
+    while(temp != NULL) {
+        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
+        if(temp->key == key) {
+            printf("COJONEEEEEEEEEEESSSSS\neeeeeeeeeee\n\n\n");
             /* Key already exists */
             printList();
             return -1;
         }
-        temp = temp->next;
+
+        if(temp->next != NULL) {
+            temp = temp->next;
+        } else {
+            break;
+        }
     }
 
     temp->next = newNode;
     newNode->prev = temp;
-
     return 0;
 }
 
@@ -75,6 +98,12 @@ int delete(int key) {
 
     while(temp->next != NULL) {
         if(temp->key == key) {
+            if(temp == head) {
+                head = temp->next;
+                free(temp);
+                return 0;
+            }
+
             Node* prev = temp->prev;
             Node* next = temp->next;
 
@@ -100,6 +129,7 @@ Node* search(int key) {
     }
 
     while(temp != NULL) {
+        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, key);
         if(temp->key == key) {
             return temp;
         }
@@ -117,6 +147,7 @@ int modify(Node* newNode) {
     }
 
     while(temp != NULL) {
+        printf("A VER QUE POLLAS PASA:::%d,,,%d\n", temp->key, newNode->key);
         if(temp->key == newNode->key) {
             temp = newNode;
             return 0;
@@ -137,7 +168,7 @@ int getCardinality() {
     }
 
     while(temp != NULL) {
-      count++;
+        count++;
     	temp = temp->next;
     }
 

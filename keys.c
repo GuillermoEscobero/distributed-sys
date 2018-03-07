@@ -13,7 +13,7 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
     
     q_client = mq_open("/CLIENT_ONE", O_CREAT|O_RDWR, 0660, &attr);
 
-    q_server = mq_open("/SERVER", O_WRONLY);
+    q_server = mq_open("/SERVERR", O_WRONLY);
 
     strcpy(req.q_name, "/CLIENT_ONE");
     req.id_method = id_method;
@@ -42,12 +42,7 @@ int start(int id_method, int key, char *value1, float value2, struct request *de
 
 int init() {
     struct request msg_local;
-    int result = start(0, 0, "", 0, &msg_local);
-	if(result != 0) {
-		return result;
-	}
-	printf("init done by server.");
-	return result;
+    return start(0, 0, "", 0, &msg_local);
 }
 
 int set_value(int key, char *value1, float value2) {
