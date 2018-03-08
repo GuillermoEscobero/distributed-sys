@@ -5,6 +5,8 @@
  * Author: Guillermo Escobero
  ****************************************************************************/
 
+#include <unistd.h>
+
 #include <stdio.h>
 #include <string.h>
 #include "keys.h"
@@ -50,7 +52,12 @@ int main(void) {
     printf("Add another triplet -> Code expected: 0, got: %d\n", set_value(56, "testid56\0", 57.75));
     printf("Add another triplet -> Code expected: 0, got: %d\n", set_value(372, "testid372\0", 372.43));
 
+
     printf("Items expected: 3, sent by server: %d\n", num_items());
+printf("SLEEPING 20''"); 
+sleep(20);
+    printf("Code expected: 0, got: %d\n", get_value(123, res1, &res2));
+    printf("Expected: GABOLO 123.123123 from server: %s, %f\n", res1, res2);
 
     printf("\n********** TEST4: GET_VALUE ************\n");
     printf("Code expected: 0, got: %d\n", get_value(56, res1, &res2));
