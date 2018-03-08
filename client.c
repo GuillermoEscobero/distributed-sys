@@ -10,9 +10,7 @@
 #include "keys.h"
 
 int main(void) {
-    char res1[MAXSIZE];
-
-	  /*strcpy(res1, "keloke\0");*/
+    char res1[MAXSIZE] = {0};
 
     float res2 = 0.0;
 
