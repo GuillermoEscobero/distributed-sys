@@ -15,13 +15,10 @@ int main(void) {
     float res2 = 0.0;
 
     printf("********** TEST1: INIT ************\n");
-    init();
-    printf("Done\n");
+    printf("Code expected: 0, got: %d\n", init());
 
     printf("\n********** TEST2: SET_VALUE ************\n");
     printf("Code expected: 0, got: %d\n", set_value(3, "testid3", 3.33));
-    printf("Done\n");
-
 
     printf("\n********** TEST3: set key already used ************\n");
     printf("Code expected: -1, got: %d\n", set_value(3, "SSSSSS3", 321.33));
@@ -70,4 +67,11 @@ int main(void) {
     printf("Expected: new3 (value1) from server: %s\n", res1);
     printf("Expected: 393.12 (value2) from server: %f\n", res2);
 
+    printf("\n********** TEST11: INIT CURRENT STATE ************\n");
+    printf("Code expected: 0, got: %d\n", init());
+    printf("Getting key 56...\n");
+    printf("Code expected: -1, got: %d\n", get_value(56, res1, &res2));
+    printf("Items expected: 0, sent by server: %d\n", num_items());
+
+    return 0;
 }

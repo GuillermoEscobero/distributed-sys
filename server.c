@@ -72,11 +72,14 @@ int main(int argc, char* argv[]) {
 int getResponse(struct message* localreq) {
     switch(localreq->id_method) {
         case 0:
+            /* init() */
             return freeList();
         case 1:
+            /* set_value() */
             Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
             return insert(newNode);
         case 2:
+            /* get_value() */
             ;
             Node* temp = search(localreq->key);
             if(temp == NULL) {
@@ -86,11 +89,14 @@ int getResponse(struct message* localreq) {
             localreq->value2 = temp->value2;
             return 0;
         case 3:
+            /* modify_value() */
             Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
             return modify(newNode);
         case 4:
+            /* delete_key() */
             return delete(localreq->key);
         case 5:
+            /* num_items() */
             return getCardinality();
         default:
             return -1;
