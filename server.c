@@ -19,6 +19,8 @@
 #define FALSE 0
 #define MAXSIZE 256
 
+#define SERVER_NAME "/SERVER_01"
+
 void process_message(struct message *msg);
 
 pthread_mutex_t mutex_msg;
@@ -35,7 +37,7 @@ int main(int argc, char* argv[]) {
     q_attr.mq_maxmsg = 10;
     q_attr.mq_msgsize = sizeof(struct message);
 
-    q_server = mq_open("/SERVER_01", O_CREAT|O_RDONLY, 0666, &q_attr);
+    q_server = mq_open(SERVER_NAME, O_CREAT|O_RDONLY, 0666, &q_attr);
     if (q_server == -1) {
         perror("Can't create server queue");
         return -1;

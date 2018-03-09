@@ -12,6 +12,9 @@
 #include "keys.h"
 #include "message.h"
 
+#define CLIENT_NAME "/CLIENT_01"
+#define SERVER_NAME "/SERVER_01"
+
 int start(int id_method, int key, char *value1, float value2, struct message *dest_ptr);
 
 int init() {
@@ -84,12 +87,12 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
     attr.mq_msgsize = sizeof(struct message);
 
     /* Open client and server queues */
-    q_client = mq_open("/CLIENT_ONE", O_CREAT|O_RDWR, 0660, &attr);
-    q_server = mq_open("/SERVER_01", O_WRONLY);
+    q_client = mq_open(CLIENT_NAME, O_CREAT|O_RDWR, 0660, &attr);
+    q_server = mq_open(SERVER_NAME, O_WRONLY);
 
     /* Fill the request to be sent */
     /* ID of the client. This will tell the server where to send the response */
-    strcpy(req.q_name, "/CLIENT_ONE");
+    strcpy(req.q_name, CLIENT_NAME);
     req.id_method = id_method;
     req.key = key;
     memset(req.value1, '\0', sizeof(req.value1));
@@ -118,7 +121,7 @@ int start(int id_method, int key, char *value1, float value2, struct message *de
     mq_close(q_client);
 
     /* Unlink client queue */
-    mq_unlink("/CLIENT_ONE");
+    mq_unlink(CLIENT_NAME);
 
     return dest_ptr->id_method;
 }
