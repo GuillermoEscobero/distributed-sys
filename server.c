@@ -54,10 +54,16 @@ int main(int argc, char* argv[]) {
 
     while(TRUE) {
         printf("\nWaiting for clients...\n");
-        mq_receive(q_server, (char*) &msg, sizeof(struct message), 0);
-        perror("mqreceive info");
+        if(mq_receive(q_server, (char*) &msg, sizeof(struct message), 0) == -1) {
+            perror("MQRECEIVE ERROR");
+        }
 
-        pthread_create(&thr, &t_attr, (void*)process_message, &msg);
+
+        if(pthread_create(&thr, &t_attr, (void*)process_message, &msg) != 0) {
+            perror("SERVER CAN'T CREATE THREADS");
+            printf("FATAL ERROR");
+            return -1;
+        }
 
         /* Wait for thread to copy message */
         pthread_mutex_lock(&mutex_msg);
@@ -76,7 +82,11 @@ int getResponse(struct message* localreq) {
             return freeList();
         case 1:
             /* set_value() */
+            ;
             Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
+            if(newNode == NULL) {
+                return -1;
+            }
             return insert(newNode);
         case 2:
             /* get_value() */
@@ -90,8 +100,12 @@ int getResponse(struct message* localreq) {
             return 0;
         case 3:
             /* modify_value() */
-            Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
-            return modify(newNode);
+            ;
+            Node* newNode2 = getNewNode(localreq->key, localreq->value1, localreq->value2);
+            if(newNode2 == NULL) {
+                return -1;
+            }
+            return modify(newNode2);
         case 4:
             /* delete_key() */
             return delete(localreq->key);
