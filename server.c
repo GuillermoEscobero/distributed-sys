@@ -25,30 +25,6 @@ pthread_mutex_t mutex_msg;
 int msg_not_copied = TRUE;
 pthread_cond_t cond_msg;
 
-
-int set_value(int key, char *value1, float value2) {
-    Node* newNode = getNewNode(key, value1, value2);
-    int result = insert(newNode);
-    return result;
-}
-
-Node* get_value(int key) {
-    return search(key);
-}
-
-int modify_value(int key, char *value1, float value2) {
-    Node* newNode = getNewNode(key, value1, value2);
-    return modify(newNode);
-}
-
-int delete_key(int key) {
-    return delete(key);
-}
-
-int num_items() {
-    return getCardinality(head);
-}
-
 int main(int argc, char* argv[]) {
     printf("Starting server...\n");
     mqd_t q_server;         /* Server queue */
@@ -98,10 +74,11 @@ int getResponse(struct message* localreq) {
         case 0:
             return freeList();
         case 1:
-            return set_value(localreq->key, localreq->value1, localreq->value2);
+            Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
+            return insert(newNode);
         case 2:
             ;
-            Node* temp = get_value(localreq->key);
+            Node* temp = search(localreq->key);
             if(temp == NULL) {
                 return -1;
             }
@@ -109,11 +86,12 @@ int getResponse(struct message* localreq) {
             localreq->value2 = temp->value2;
             return 0;
         case 3:
-            return modify_value(localreq->key, localreq->value1, localreq->value2);
+            Node* newNode = getNewNode(localreq->key, localreq->value1, localreq->value2);
+            return modify(newNode);
         case 4:
-            return delete_key(localreq->key);
+            return delete(localreq->key);
         case 5:
-            return getCardinality(head);
+            return getCardinality();
         default:
             return -1;
     }
@@ -127,15 +105,8 @@ void process_message(struct message *msg) {
     pthread_mutex_lock(&mutex_msg);
     memcpy(&msg_local, msg, sizeof(struct message));
 
-    /* wake up server */
-    msg_not_copied = FALSE;
-
-    pthread_cond_signal(&cond_msg);
-
-    pthread_mutex_unlock(&mutex_msg);
-
     /* execute client request and prepare reply */
-
+    printf("\n********************\n");
     printf("Received request from: %s\n", (char*)msg_local.q_name);
     printf("MESSAGE RECEIVED\n");
     printf("id_method: %d\n", msg_local.id_method);
@@ -143,10 +114,18 @@ void process_message(struct message *msg) {
     printf("value1: %s\n", msg_local.value1);
     printf("value2: %f\n", msg_local.value2);
 
+    /* Data structure access protected */
+    int result = getResponse(&msg_local);
+
+    /* wake up server */
+    msg_not_copied = FALSE;
+
+    pthread_cond_signal(&cond_msg);
+
+    pthread_mutex_unlock(&mutex_msg);
+
     /* return result to client by sending it to queue */
     q_client = mq_open(msg_local.q_name, O_WRONLY);
-
-    int result = getResponse(&msg_local);
 
     msg_local.id_method = result;
 
